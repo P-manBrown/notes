@@ -1,61 +1,107 @@
 # DevContainersのFeaturesをテストする方法
 
-以下のようにtestディレクトリを作成する。  
+## テスト方法
 
-```sh
+たとえば以下のようにtestディレクトリを作成する。  
+`test`ディレクトリ内のディレクトリ名はテストするFeatureと対応していなければならない。  
+
+```terminal
 $ tree
 .
-│
+├── src
+│   ├── git
+│   │   ├── devcontainer-feature.json
+│   │   └── install.sh
+...
 ├── test
-│   ├── git-from-src-fast
-│   │   ├── git-from-src-fast.sh
+│   ├── _global
+│   │ ├── scenarios.json
+│   │ └── some_test_scenario.sh
+│   ├── git
 │   │   ├── scenarios.json
-│   │   └── test.sh
-│   └── _global
-│       └── color_and_hello.sh
-
+│   │   ├── install_dotnet_and_oryx.sh
+│   │   └── test.sh 
+...
 ```
 
-`test/git-from-src-fast`内ファイルの内容は以下のとおり。  
+`test/test.sh`を以下のように作成する。  
 
-- git-from-src-fast.sh
-
-```zsh
+```bash
 #!/bin/bash
 
 set -e
 
-# Optional: Import test library
 source dev-container-features-test-lib
 
 check "version" git --version
-check "gettext" dpkg-query -l gettext
 
-# Report result
 reportResults
 ```
 
-- scenarios.json
+- `check <LABEL> <cmd> [arg...]...`  
+`<cmd>`を実行し終了コードに応じて成功/失敗を表示する。
+
+- `reportResults`
+`check`と`checkMultiple`の結果を出力する。
+
+テストを実行するにはDevContainersCLIを使用する。  
+
+```terminal
+devcontainer features test --features Feature名 --base-image ベースイメージ .
+```
+
+```terminal
+devcontainer features test --features git --base-image mcr.microsoft.com/devcontainers/base:debian .
+```
+
+上記の場合には`git`Featureをdebianのベースイメージを使用してテストする。  
+
+以下のようにコマンドを短くできる。  
+
+```terminal
+devcontainer features test -f git -b debian
+```
+
+## シナリオ
+
+オプションを指定してテストを実行するには`scenarios.json`とそれに対応するファイルを作成する。  
+
+- `scenarios.json`
 
 ```json
 {
-  "git-from-src-fast": {
+  "git-scenario": {
       "image": "ubuntu:focal",
       "features": {
           "git": {
-            "version": "latest"
+            "version": "2.20.1"
           }
       }
   }
 }
-
 ```
 
-上記の`"git-from-src-fast"`には`.sh`のファイル名を記述する。  
+- `git-scenario.sh`
 
-ファイルが存在しない場合にはテスト実行時に以下のようなエラーが出る。  
+```bash
+#!/bin/bash
 
-```zsh
+set -e
+
+source dev-container-features-test-lib
+
+check "version" git --version
+
+reportResults
+```
+
+`scenarios.json`の`"git-scenario"`には`.sh`のファイル名を記述する。`"git"`にはFeature名を記述する。  
+
+例では`git`Featureを`git-scenario.sh`の内容でテストすることになる。  
+
+なお`scenarios.json`に対応するファイルが存在しない場合にはテスト実行時に以下のようなエラーが出る。  
+
+```terminal
 $ devcontainer features test --features git-from-src-fast --base-image mcr.microsoft.com/devcontainers/base:debian .
 
 ...
@@ -64,22 +110,8 @@ $ devcontainer features test --features git-from-src-fast --base-image mcr.micro
   Either add a script to the test folder, or remove from scenarios.json.
 ```
 
-- test.sh
-
-```zsh
-#!/bin/bash
-
-set -e
-
-# Optional: Import test library
-source dev-container-features-test-lib
-
-# Definition specific tests
-check "version" git --version
-
-# Report result
-reportResults
-
-```
-
 `scenarios.json`は作成しなくても良い。  
+
+## 参考
+
+<https://github.com/devcontainers/cli/blob/main/docs/features/test.md>
