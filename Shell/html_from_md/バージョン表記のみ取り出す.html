@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>バージョン表記のみ取り出す.md</title>
+<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
+<link rel="stylesheet" href="https://p-manbrown.github.io/markdown-pdf-css/markdown-pdf.css" type="text/css">
+<script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+</head>
+<body>
+  <script>
+    mermaid.initialize({
+      startOnLoad: true,
+      theme: document.body.classList.contains('vscode-dark') || document.body.classList.contains('vscode-high-contrast')
+          ? 'dark'
+          : 'default'
+    });
+  </script>
+<h1 id="%E3%82%B3%E3%83%9E%E3%83%B3%E3%83%89%E3%81%AE%E5%87%BA%E5%8A%9B%E3%81%8B%E3%82%89%E3%83%90%E3%83%BC%E3%82%B8%E3%83%A7%E3%83%B3%E8%A1%A8%E8%A8%98%E3%81%AE%E3%81%BF%E5%8F%96%E5%BE%97%E3%81%99%E3%82%8B%E6%96%B9%E6%B3%95">コマンドの出力からバージョン表記のみ取得する方法</h1>
+<p>以下のように実行するとバージョン表記部分のみ取得できる。</p>
+<pre class="hljs"><code><div>$ git --version
+git version 2.38.1
+
+$ git --version | grep -Eo <span class="hljs-string">"[0-9]+\.[0-9]+\.[0-9]+"</span>
+2.38.1
+</div></code></pre>
+<ul>
+<li>
+<p><code>-E</code><br>
+拡張正規表現を使用する。</p>
+</li>
+<li>
+<p><code>-o</code><br>
+一致した文字列のみ出力する。</p>
+</li>
+<li>
+<p><code>[0-9]+</code><br>
+0から9が1回以上繰り返される。<br>
+<a href="https://city3939.com/regular-expression/">https://city3939.com/regular-expression/</a></p>
+</li>
+</ul>
+
+</body>
+</html>
